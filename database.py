@@ -11,8 +11,6 @@ mydb=sql.connect(
     user="Jay1509",
     passwd="Chotaliya@1509",
     database="Bank"
-    port=3306,
-    connection_timeout=60
 )
 
 cursor=mydb.cursor()
