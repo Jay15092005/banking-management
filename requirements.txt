@@ -1,2 +1,3 @@
 streamlit==1.19.0
+altair
 mysql-connector-python==8.0.32
