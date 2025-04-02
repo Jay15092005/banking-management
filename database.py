@@ -1,15 +1,8 @@
 import mysql.connector as sql
 import os
-<<<<<<< Updated upstream
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
-=======
-import tomli  # For Python 3.10+, use tomli for TOML parsing
 import streamlit as st
 
-# Load configuration from TOML file
+# Load configuration from Streamlit secrets
 def load_config():
     # First try to use Streamlit secrets for deployment
     if hasattr(st, 'secrets') and 'database' in st.secrets:
@@ -22,28 +15,21 @@ def load_config():
             }
         }
     
-    # Then try local config.toml for development
-    try:
-        with open("config.toml", "rb") as f:
-            return tomli.load(f)
-    except Exception as e:
-        print(f"Error loading config.toml: {e}")
-        # Fallback to env variables if TOML loading fails
-        from dotenv import load_dotenv
-        load_dotenv()
-        return {
-            "database": {
-                "host": os.getenv("DB_HOST"),
-                "user": os.getenv("DB_USER"),
-                "password": os.getenv("DB_PASSWORD"),
-                "name": os.getenv("DB_NAME")
-            }
+    # For local development, fall back to .env file
+    from dotenv import load_dotenv
+    load_dotenv()
+    return {
+        "database": {
+            "host": os.getenv("DB_HOST"),
+            "user": os.getenv("DB_USER"),
+            "password": os.getenv("DB_PASSWORD"),
+            "name": os.getenv("DB_NAME")
         }
+    }
 
 # Load configuration
 config = load_config()
 db_config = config["database"]
->>>>>>> Stashed changes
 
 def db_query(str):
     cursor.execute(str)
@@ -59,17 +45,10 @@ def db_query(str):
 # )
 
 mydb=sql.connect(
-<<<<<<< Updated upstream
-    host=os.getenv("DB_HOST"),
-    user=os.getenv("DB_USER"),
-    passwd=os.getenv("DB_PASSWORD"),
-    database=os.getenv("DB_NAME")
-=======
     host=db_config["host"],
     user=db_config["user"],
     passwd=db_config["password"],
     database=db_config["name"]
->>>>>>> Stashed changes
 )
 
 cursor=mydb.cursor()
