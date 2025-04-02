@@ -15,17 +15,6 @@ def load_config():
             }
         }
     
-    # For local development, fall back to .env file
-    from dotenv import load_dotenv
-    load_dotenv()
-    return {
-        "database": {
-            "host": os.getenv("DB_HOST"),
-            "user": os.getenv("DB_USER"),
-            "password": os.getenv("DB_PASSWORD"),
-            "name": os.getenv("DB_NAME")
-        }
-    }
 
 # Load configuration
 config = load_config()
