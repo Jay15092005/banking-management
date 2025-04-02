@@ -6,8 +6,12 @@ from Bank import AllTransactions
 # Load configuration from Streamlit secrets
 def load_config():
     # For deployment: use Streamlit secrets
-    if hasattr(st, 'secrets'):
-        return st.secrets
+    try:
+        if hasattr(st, 'secrets'):
+            if 'database' in st.secrets:
+                return st.secrets
+    except Exception as e:
+        st.error(f"Error accessing secrets: {e}")
     
     # For local development: use default values
     return {
@@ -25,21 +29,28 @@ config = load_config()
 
 def main():
     # Apply UI configuration if available
-    if "ui" in config:
-        ui_config = config["ui"]
-        if "primary_color" in ui_config:
-            primary_color = ui_config["primary_color"]
-            st.markdown(f"""
-            <style>
-            .stButton button {{
-                background-color: {primary_color};
-                color: white;
-            }}
-            </style>
-            """, unsafe_allow_html=True)
+    try:
+        if "ui" in config:
+            ui_config = config["ui"]
+            if "primary_color" in ui_config:
+                primary_color = ui_config["primary_color"]
+                st.markdown(f"""
+                <style>
+                .stButton button {{
+                    background-color: {primary_color};
+                    color: white;
+                }}
+                </style>
+                """, unsafe_allow_html=True)
+    except Exception as e:
+        st.warning(f"Could not apply UI configuration: {e}")
         
     # Use application name from config
-    app_name = config["application"]["name"] if "application" in config and "name" in config["application"] else "Banking System"
+    try:
+        app_name = config["application"]["name"] if "application" in config and "name" in config["application"] else "Banking System"
+    except Exception:
+        app_name = "Banking System"
+        
     st.title(app_name)
     
     # Initialize session state for user login and selected action
@@ -96,8 +107,12 @@ def main():
         Helo = AllTransactions(st.session_state.user)
 
         # Apply transaction limits from config if available
-        deposit_limit = config["settings"].get("default_deposit_limit", 100000) if "settings" in config else 100000
-        withdrawal_limit = config["settings"].get("default_withdrawal_limit", 50000) if "settings" in config else 50000
+        try:
+            deposit_limit = config["settings"].get("default_deposit_limit", 100000) if "settings" in config else 100000
+            withdrawal_limit = config["settings"].get("default_withdrawal_limit", 50000) if "settings" in config else 50000
+        except Exception:
+            deposit_limit = 100000
+            withdrawal_limit = 50000
 
         if choice == "Deposit":
             amount = st.number_input("Enter amount to deposit:", min_value=0, max_value=deposit_limit, format="%d")
