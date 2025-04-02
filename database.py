@@ -1,49 +1,4 @@
 import mysql.connector as sql
-import os
-<<<<<<< Updated upstream
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
-=======
-import tomli  # For Python 3.10+, use tomli for TOML parsing
-import streamlit as st
-
-# Load configuration from TOML file
-def load_config():
-    # First try to use Streamlit secrets for deployment
-    if hasattr(st, 'secrets') and 'database' in st.secrets:
-        return {
-            "database": {
-                "host": st.secrets["database"]["host"],
-                "user": st.secrets["database"]["user"],
-                "password": st.secrets["database"]["password"],
-                "name": st.secrets["database"]["name"]
-            }
-        }
-    
-    # Then try local config.toml for development
-    try:
-        with open("config.toml", "rb") as f:
-            return tomli.load(f)
-    except Exception as e:
-        print(f"Error loading config.toml: {e}")
-        # Fallback to env variables if TOML loading fails
-        from dotenv import load_dotenv
-        load_dotenv()
-        return {
-            "database": {
-                "host": os.getenv("DB_HOST"),
-                "user": os.getenv("DB_USER"),
-                "password": os.getenv("DB_PASSWORD"),
-                "name": os.getenv("DB_NAME")
-            }
-        }
-
-# Load configuration
-config = load_config()
-db_config = config["database"]
->>>>>>> Stashed changes
 
 def db_query(str):
     cursor.execute(str)
@@ -59,17 +14,10 @@ def db_query(str):
 # )
 
 mydb=sql.connect(
-<<<<<<< Updated upstream
-    host=os.getenv("DB_HOST"),
-    user=os.getenv("DB_USER"),
-    passwd=os.getenv("DB_PASSWORD"),
-    database=os.getenv("DB_NAME")
-=======
-    host=db_config["host"],
-    user=db_config["user"],
-    passwd=db_config["password"],
-    database=db_config["name"]
->>>>>>> Stashed changes
+    host="bank-management.mysql.database.azure.com",
+    user="Jay1509",
+    passwd="Chotaliya@1509",
+    database="Bank"
 )
 
 cursor=mydb.cursor()

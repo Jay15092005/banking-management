@@ -9,19 +9,12 @@ A simple banking system application with both console and web interfaces.
 pip install -r requirements.txt
 ```
 
-2. Configure the application:
+2. Configure the application for local development:
    
-   Option 1: Using TOML configuration (recommended)
-   - The application uses a `config.toml` file for configuration
-   - You can edit this file to change database settings and application parameters
-
-   ```toml
-   [database]
-   host = "your_database_host"
-   user = "your_database_user"
-   password = "your_database_password"
-   name = "your_database_name"
-   ```
+   Option 1: Using Streamlit secrets (recommended)
+   - Create a `.streamlit/secrets.toml` file in the root directory
+   - Copy the structure from `.streamlit/secrets.example.toml`
+   - Add your database credentials and other settings
 
    Option 2: Using environment variables (.env file)
    - Create a `.env` file in the root directory
@@ -47,7 +40,7 @@ pip install -r requirements.txt
 
 ## Configuration Options
 
-The `config.toml` file provides the following configuration sections:
+The secrets configuration provides the following sections:
 
 - `[database]` - Database connection settings
 - `[application]` - General application information
@@ -57,42 +50,32 @@ The `config.toml` file provides the following configuration sections:
 
 ## Deployment on Streamlit Community Cloud
 
-This application is designed to be easily deployed on Streamlit Community Cloud.
+### Step 1: Prepare Your Repository
 
-### Steps for Deployment:
+1. Make sure your code is in a GitHub repository
+2. Ensure your repository has these files:
+   - Streamlit.py (main application file)
+   - requirements.txt (correctly formatted without merge conflicts)
+   - Other necessary Python files (database.py, Bank.py, etc.)
+3. Add `.streamlit/secrets.toml` to your `.gitignore` file
 
-1. Create a GitHub repository with your code
+### Step 2: Deploy to Streamlit Community Cloud
 
-2. Set up secrets in Streamlit Community Cloud:
-   - Go to your app dashboard in Streamlit Community Cloud
-   - Navigate to the "Secrets" section
-   - Add your database credentials and other configuration settings:
+1. Go to [Streamlit Community Cloud](https://streamlit.io/cloud)
+2. Log in with your GitHub account
+3. Click "New app"
+4. Select your repository, branch, and main file (Streamlit.py)
+5. Click "Advanced settings"
+6. In the "Secrets" section, copy and paste the contents of your `.streamlit/secrets.example.toml` file (with real credentials)
+7. Click "Deploy!"
 
-   ```toml
-   [database]
-   host = "your_database_host"
-   user = "your_database_user"
-   password = "your_database_password"
-   name = "your_database_name"
-   
-   [application]
-   name = "Bank Management System"
-   ```
+### Step 3: Troubleshooting Deployment Issues
 
-3. Deploy your app:
-   - Connect your GitHub repository to Streamlit Community Cloud
-   - Select the `Streamlit.py` as the main file to run
-   - Deploy!
+If you encounter deployment errors:
 
-The application is designed to first look for secrets in Streamlit's secrets management system
-for production deployment, then fall back to local configuration files for development.
+1. Check the error logs in the Streamlit Community Cloud dashboard
+2. Verify that your requirements.txt file is properly formatted
+3. Make sure your database credentials are correct in the secrets
+4. If code changes are needed, update your GitHub repository and the app will automatically redeploy
 
-### Secrets Management
-
-For local development:
-- Use `.streamlit/secrets.toml` file (not committed to version control)
-- This file will only be used during local development
-
-For Streamlit deployment:
-- Configure secrets through the Streamlit Community Cloud dashboard
-- These will be securely stored and available to your application when deployed
+For more information, see [Streamlit Secrets Management](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management).
