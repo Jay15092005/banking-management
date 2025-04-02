@@ -1,26 +1,24 @@
 import streamlit as st
-import tomli
 import os
 from register import SignUp, SignIn, db_query
 from Bank import AllTransactions
 
-# Load configuration from TOML
+# Load configuration from Streamlit secrets
 def load_config():
-    # First try to load from Streamlit secrets (for deployment)
-    if hasattr(st, 'secrets') and 'database' in st.secrets:
+    # For deployment: use Streamlit secrets
+    if hasattr(st, 'secrets'):
         return st.secrets
-    # Fall back to local config.toml file (for development)
-    try:
-        with open("config.toml", "rb") as f:
-            return tomli.load(f)
-    except Exception as e:
-        st.error(f"Error loading configuration: {e}")
-        return {
-            "database": {},
-            "application": {"name": "Banking System"},
-            "settings": {"session_timeout_minutes": 30},
-            "ui": {"theme": "light", "primary_color": "#007bff"}
-        }
+    
+    # For local development: use default values
+    return {
+        "application": {"name": "Banking System"},
+        "settings": {
+            "session_timeout_minutes": 30,
+            "default_deposit_limit": 100000,
+            "default_withdrawal_limit": 50000
+        },
+        "ui": {"theme": "light", "primary_color": "#007bff"}
+    }
 
 # Load configuration
 config = load_config()
