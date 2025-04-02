@@ -1,9 +1,48 @@
 import streamlit as st
+import tomli
+import os
 from register import SignUp, SignIn, db_query
 from Bank import AllTransactions
 
+# Load configuration from TOML
+def load_config():
+    # First try to load from Streamlit secrets (for deployment)
+    if hasattr(st, 'secrets') and 'database' in st.secrets:
+        return st.secrets
+    # Fall back to local config.toml file (for development)
+    try:
+        with open("config.toml", "rb") as f:
+            return tomli.load(f)
+    except Exception as e:
+        st.error(f"Error loading configuration: {e}")
+        return {
+            "database": {},
+            "application": {"name": "Banking System"},
+            "settings": {"session_timeout_minutes": 30},
+            "ui": {"theme": "light", "primary_color": "#007bff"}
+        }
+
+# Load configuration
+config = load_config()
+
 def main():
-    st.title("Banking System")
+    # Apply UI configuration if available
+    if "ui" in config:
+        ui_config = config["ui"]
+        if "primary_color" in ui_config:
+            primary_color = ui_config["primary_color"]
+            st.markdown(f"""
+            <style>
+            .stButton button {{
+                background-color: {primary_color};
+                color: white;
+            }}
+            </style>
+            """, unsafe_allow_html=True)
+        
+    # Use application name from config
+    app_name = config["application"]["name"] if "application" in config and "name" in config["application"] else "Banking System"
+    st.title(app_name)
     
     # Initialize session state for user login and selected action
     if "user" not in st.session_state:
@@ -13,7 +52,7 @@ def main():
 
     # If user is not logged in, show the login and sign-up options
     if st.session_state.user is None:
-        st.subheader("Welcome to the Banking System")
+        st.subheader(f"Welcome to {app_name}")
         
         # Authentication section
         action = st.sidebar.selectbox("Choose Action", ["Sign Up", "Sign In"])
@@ -58,13 +97,17 @@ def main():
         # Instance of AllTransactions for the logged-in user
         Helo = AllTransactions(st.session_state.user)
 
+        # Apply transaction limits from config if available
+        deposit_limit = config["settings"].get("default_deposit_limit", 100000) if "settings" in config else 100000
+        withdrawal_limit = config["settings"].get("default_withdrawal_limit", 50000) if "settings" in config else 50000
+
         if choice == "Deposit":
-            amount = st.number_input("Enter amount to deposit:", min_value=0, format="%d")  # Ensures integer input
+            amount = st.number_input("Enter amount to deposit:", min_value=0, max_value=deposit_limit, format="%d")
             if amount and st.button("Deposit"):
                 Helo.Deposit(amount)
         
         elif choice == "Withdraw":
-            amount = st.number_input("Enter amount to withdraw:", min_value=0, format="%d")  # Ensures integer input
+            amount = st.number_input("Enter amount to withdraw:", min_value=0, max_value=withdrawal_limit, format="%d")
             if amount and st.button("Withdraw"):
                 Helo.Withdraw(amount)
         
@@ -74,7 +117,7 @@ def main():
         
         elif choice == "Transfer":
             recipient = st.text_input("Enter recipient's username:")
-            amount = st.number_input("Enter amount to transfer:", min_value=1, format="%d")  # Ensures integer input
+            amount = st.number_input("Enter amount to transfer:", min_value=1, max_value=withdrawal_limit, format="%d")
             if amount and recipient and st.button("Transfer"):
                 Helo.Transfer(recipient, amount)
         
